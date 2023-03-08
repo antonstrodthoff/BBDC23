@@ -5,18 +5,40 @@ import matplotlib.pyplot as plt
 def indexToDate(index):
     return pd.to_datetime(index, unit="D", origin=pd.Timestamp("1962.01.01"))
 
-print(indexToDate(1).strftime("%Y.%m.%d"))
+#print(indexToDate(10).strftime("%d.%m.%Y"))
 
-csv = pd.read_csv("task_student/bbdc_2023_AWI_data_develop_student.csv", sep=";", na_values=["NA", "NaN", None, np.nan])
-csv.fillna(np.nan, inplace=True)
-csv = csv.drop(0)
-csv[["SECCI", "Temperatur", "Salinität", "NO2", "NO3", "NOx"]] = csv[["SECCI", "Temperatur", "Salinität", "NO2", "NO3", "NOx"]].astype(float)
+data = pd.read_csv("task_student/bbdc_2023_AWI_data_develop_student.csv", sep=";", na_values=["NA", "NaN", None, np.nan])
+data.fillna(np.nan, inplace=True)
+data = data.drop(0)
+data[["SECCI", "Temperatur", "Salinität", "NO2", "NO3", "NOx"]] = data[["SECCI", "Temperatur", "Salinität", "NO2", "NO3", "NOx"]].astype(float)
 
-datalength = csv.shape[0]
+dataLength = data.shape[0]
 
-xx = np.arange(0, datalength - 1, 1)
-yy = csv.iloc[1:, 3].interpolate(method="linear", limit_direction="both")
+for i in range(2,8):
+    data.iloc[1:, i] = data.iloc[1:, i].interpolate(method="linear", limit_direction="both")        #writes interpolated values into the dataframe
 
-#plt.plot(xx, yy)
+xx = np.arange(0, dataLength - 1, 1)
+
+#plt.plot(xx, data.iloc[1:, 6])
 #plt.show()
 
+
+def writeData(data, dataLength):
+    results = pd.read_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student.csv", sep=";")
+    resultLength = results.shape[0]
+
+    for i in range(1,resultLength):
+        datestring = results.iloc[i, 0]
+        for j in range((dataLength-364), dataLength):
+            if(indexToDate(j).strftime("%d.%m.") == datestring[:-4]):
+                results.iloc[i, 2:8] = data.iloc[j-1, 2:8]
+                break
+
+    for i in range(2,8):
+        for j in range(1,resultLength):
+            round(results.iloc[j, i], 2)
+
+
+    results.to_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student_test.csv", sep=";", index=False)
+
+writeData(data, dataLength)
