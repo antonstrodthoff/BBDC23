@@ -10,7 +10,7 @@ csv[["SECCI", "Temperatur", "Salinität", "NO2", "NO3", "NOx"]] = csv[["SECCI", 
 datalength = csv.shape[0]
 
 xx = np.arange(0, datalength - 1, 1)
-yy = list(np.array(csv.iloc[1:, 2]))
+yy = csv.iloc[1:, 3].interpolate(method="linear", limit_direction="both")
 
 plt.plot(xx, yy)
 plt.show()
