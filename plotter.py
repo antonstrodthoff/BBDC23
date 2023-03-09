@@ -14,13 +14,21 @@ data[["SECCI", "Temperatur", "Salinität", "NO2", "NO3", "NOx"]] = data[["SECCI"
 
 dataLength = data.shape[0]
 
+def avg(dataSeries, N):
+    meanSeries = dataSeries.rolling(window=N, center=True).mean()
+    return meanSeries
+
 for i in range(2,8):
     data.iloc[1:, i] = data.iloc[1:, i].interpolate(method="linear", limit_direction="both")        #writes interpolated values into the dataframe
+    data.iloc[1:, i] = avg(data.iloc[1:, i], 50)                                                    #writes averaged values into the dataframe
 
-xx = np.arange(0, dataLength - 1, 1)
+#averageData = avg(data.iloc[1:, 3], 50)
+    
+xx = np.arange(0, dataLength-1, 1)
+plt.plot(xx, data.iloc[1:, 8])
+plt.ylabel(data.columns[8])
+plt.show()
 
-#plt.plot(xx, data.iloc[1:, 6])
-#plt.show()
 
 
 def writeData(data, dataLength):
@@ -34,11 +42,6 @@ def writeData(data, dataLength):
                 results.iloc[i, 2:8] = data.iloc[j-1, 2:8]
                 break
 
-    for i in range(2,8):
-        for j in range(1,resultLength):
-            round(results.iloc[j, i], 2)
+    results.to_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student_out.csv", sep=";", index=False)
 
-
-    results.to_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student_test.csv", sep=";", index=False)
-
-writeData(data, dataLength)
+#writeData(data, dataLength)
