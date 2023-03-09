@@ -1,6 +1,11 @@
+import sys
+sys.path.insert(0, './task_student/')
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import sklearn.metrics as metrics
+from upload_scoring import score_all
 
 def indexToDate(index):
     return pd.to_datetime(index, unit="D", origin=pd.Timestamp("1962.01.01"))
@@ -47,6 +52,11 @@ plt.plot(xx, rollingMeanData.iloc[:, plotColumn], linewidth=1, alpha=0.3)
 plt.ylabel(data.columns[plotColumn])
 plt.legend(["Original", "Interpolated", "Averaged"])
 plt.show()
+
+data.fillna(0, inplace=True)
+print("The score of the year 2009 compared to the year 2010 is:")
+print(score_all(data.iloc[17166:17531, 2:7], data.iloc[16801:17166, 2:7]))
+print("(All np.nan values are replaced with 0.0)")
 
 #writeData(data, dataLength)
 
