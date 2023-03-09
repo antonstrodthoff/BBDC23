@@ -34,7 +34,7 @@ interpolatedData = data.copy()
 interpolatedData = interpolatedData.interpolate(method="linear", limit_direction="both")
     
 rollingMeanData = interpolatedData.copy()
-rollingMeanData.iloc[:, 2:7] = rollingMeanData.iloc[:, 2:7].rolling(window=50, center=True).mean()
+rollingMeanData.iloc[:, 2:7] = rollingMeanData.iloc[:, 2:7].rolling(window=50, center=True, min_periods=25).mean()
 
 dataLength = data.shape[0]
 xx = np.arange(0, dataLength, 1)
@@ -46,11 +46,12 @@ plt.ylabel(data.columns[plotColumn])
 plt.legend(["Original", "Interpolated", "Averaged"])
 #plt.show()
 
-print(rollingMeanData.shape)
-print(rollingMeanData.head(60))
-print("The score of the year 2009 compared to the year 2010 is:")
-print(score_all(interpolatedData.iloc[17166:17531, 2:7], interpolatedData.iloc[16801:17166, 2:7]))
-print(score_all(rollingMeanData.iloc[17166:17531, 2:7], rollingMeanData.iloc[16801:17166, 2:7]))
+#allowed yearToCompare values are 1962 to 2008
+yearToCompare = 2008
+startIndex = (yearToCompare - 1962 + 1) * 365
+print(f"The score of the year %i compared to the year %i is:" % (yearToCompare, yearToCompare + 1))
+print(score_all(interpolatedData.iloc[startIndex:startIndex+365, 2:7], interpolatedData.iloc[startIndex-365:startIndex, 2:7]))
+print(score_all(rollingMeanData.iloc[startIndex:startIndex+365, 2:7], rollingMeanData.iloc[startIndex-365:startIndex, 2:7]))
 
 #writeData(data, dataLength)
 
