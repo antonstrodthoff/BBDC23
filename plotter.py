@@ -23,7 +23,7 @@ def writeData(data, dataLength):
 
     results.to_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student_out.csv", sep=";", index=False)
 
-plotColumn = 2
+plotColumn = 4
 
 data = pd.read_csv("task_student/bbdc_2023_AWI_data_develop_student.csv", sep=";", na_values=["NA", "NaN", None, np.nan])
 data.fillna(np.nan, inplace=True)
@@ -33,7 +33,7 @@ data[["SECCI", "Temperatur", "Salinität", "NO2", "NO3", "NOx"]] = data[["SECCI"
 interpolatedData = data.copy()
 interpolatedData = interpolatedData.interpolate(method="linear", limit_direction="both")
     
-window = 500
+window = 6000
 rollingMeanData = interpolatedData.copy()
 rollingMeanData.iloc[:, 2:7] = rollingMeanData.iloc[:, 2:7].rolling(window=window, center=True, min_periods=window//2).mean()
 
@@ -41,26 +41,26 @@ dataLength = data.shape[0]
 xx = np.arange(0, dataLength, 1)
 
 #plt.plot(xx, data.iloc[:, plotColumn], linewidth=1, alpha=1)
-plt.plot(xx, interpolatedData.iloc[:, plotColumn], linewidth=1, alpha=0.3)
-plt.plot(xx, rollingMeanData.iloc[:, plotColumn], linewidth=1, alpha=0.3)
-plt.ylabel(data.columns[plotColumn])
-plt.legend(["Original", "Interpolated", "Averaged"])
+#plt.plot(xx, interpolatedData.iloc[:, plotColumn], linewidth=1, alpha=0.3)
+#plt.plot(xx, rollingMeanData.iloc[:, plotColumn], linewidth=1, alpha=0.3)
+#plt.ylabel(data.columns[plotColumn])
+#plt.legend(["Original", "Interpolated", "Averaged"])
 #plt.show()
 
 #allowed yearToCompare values are 1962 to 2008
-year1 = 1998
-year2 = 1999
+year1 = 1995
+year2 = 1996
 startIndex1 = (year1 - 1962 + 1) * 365
 startIndex2 = (year2 - 1962 + 1) * 365
 
 
-for window in range(2000, 4000, 50):
+for window in range(1, 100, 10):
     rollingMeanData = interpolatedData.copy()
     rollingMeanData.iloc[:, 2:7] = rollingMeanData.iloc[:, 2:7].rolling(window=window, center=True, min_periods=window//2).mean()
 
     print(f"The score of the year %i compared to the year %i with a windowsize of %i is:" % (year1, year2, window))
-    print(score_all(interpolatedData.iloc[startIndex1:startIndex1+365, 2:7], interpolatedData.iloc[startIndex2:startIndex2+365, 2:7]))
-    print(score_all(rollingMeanData.iloc[startIndex1:startIndex1+365, 2:7], rollingMeanData.iloc[startIndex2:startIndex2+365, 2:7]))
+    print(score_all(interpolatedData.iloc[startIndex1:startIndex1+365, 4], interpolatedData.iloc[startIndex2:startIndex2+365, 4]))
+    print(score_all(rollingMeanData.iloc[startIndex1:startIndex1+365, 4], interpolatedData.iloc[startIndex2:startIndex2+365, 4]))
 
 #writeData(data, dataLength)
 
