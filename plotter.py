@@ -5,31 +5,9 @@ import matplotlib.pyplot as plt
 def indexToDate(index):
     return pd.to_datetime(index, unit="D", origin=pd.Timestamp("1962.01.01"))
 
-#print(indexToDate(10).strftime("%d.%m.%Y"))
-
-data = pd.read_csv("task_student/bbdc_2023_AWI_data_develop_student.csv", sep=";", na_values=["NA", "NaN", None, np.nan])
-data.fillna(np.nan, inplace=True)
-data = data.drop(0)
-data[["SECCI", "Temperatur", "Salinität", "NO2", "NO3", "NOx"]] = data[["SECCI", "Temperatur", "Salinität", "NO2", "NO3", "NOx"]].astype(float)
-
-dataLength = data.shape[0]
-
 def avg(dataSeries, N):
     meanSeries = dataSeries.rolling(window=N, center=True).mean()
     return meanSeries
-
-for i in range(2,8):
-    data.iloc[1:, i] = data.iloc[1:, i].interpolate(method="linear", limit_direction="both")        #writes interpolated values into the dataframe
-    data.iloc[1:, i] = avg(data.iloc[1:, i], 50)                                                    #writes averaged values into the dataframe
-
-#averageData = avg(data.iloc[1:, 3], 50)
-    
-xx = np.arange(0, dataLength-1, 1)
-plt.plot(xx, data.iloc[1:, 8])
-plt.ylabel(data.columns[8])
-plt.show()
-
-
 
 def writeData(data, dataLength):
     results = pd.read_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student.csv", sep=";")
@@ -44,4 +22,31 @@ def writeData(data, dataLength):
 
     results.to_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student_out.csv", sep=";", index=False)
 
+plotColumn = 2
+
+data = pd.read_csv("task_student/bbdc_2023_AWI_data_develop_student.csv", sep=";", na_values=["NA", "NaN", None, np.nan])
+data.fillna(np.nan, inplace=True)
+data = data.drop(0)
+data[["SECCI", "Temperatur", "Salinität", "NO2", "NO3", "NOx"]] = data[["SECCI", "Temperatur", "Salinität", "NO2", "NO3", "NOx"]].astype(float)
+interpolatedData = data.copy()
+rollingMeanData = data.copy()
+
+dataLength = data.shape[0]
+
+for i in range(2,7):
+    #writes interpolated values into the dataframe
+    interpolatedData.iloc[:, i] = interpolatedData.iloc[:, i].interpolate(method="linear", limit_direction="both")
+    #writes averaged values into the dataframe
+    rollingMeanData.iloc[:, i] = avg(rollingMeanData.iloc[:, i], 50)
+
+xx = np.arange(0, dataLength, 1)
+
+plt.plot(xx, data.iloc[:, plotColumn], linewidth=1, alpha=1)
+plt.plot(xx, interpolatedData.iloc[:, plotColumn], linewidth=1, alpha=0.3)
+plt.plot(xx, rollingMeanData.iloc[:, plotColumn], linewidth=1, alpha=0.3)
+plt.ylabel(data.columns[plotColumn])
+plt.legend(["Original", "Interpolated", "Averaged"])
+plt.show()
+
 #writeData(data, dataLength)
+

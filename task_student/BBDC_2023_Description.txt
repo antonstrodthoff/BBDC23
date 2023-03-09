@@ -1,0 +1,50 @@
+-- German --
+
+Willkommen zur Bremen Big Data Challenge 2023!
+
+In der diesjährigen Aufgabenstellung sollen Messdaten aus Wasserproben verarbeitet werden. Die Messungen wurden durch das Alfred-Wegener-Institut in der Nähe von Helgoland (Nordsee) durchgeführt und über einen Zeitraum von 54 Jahren aufgezeichnet (01.01.1962 - 31.12.2015). 
+
+Die Messdaten sind als Tabelle strukturiert. Für jeden Messung gibt es einen entsprechenden Eintrag mit 8 Werten.
+Da es sich um echte Messdaten handelt, können Daten fehlen. Diese sind als leere Einträge oder mit "NA" gekennzeichnet.
+Ebenfalls können unsichere Dateneinträge mit "?" vermerkt sein. Die Daten sind im englischen Format eingetragen (Nachkommastellen/Dezimaltrennzeichen sind durch einen Punkt "." gekennzeichnet und Tausendertrennzeichen durch ein Komma ",").
+
+Die Developmentdatei enthält die reinen Messdaten inklusive fehlender Einträge und "?"-Vermerke über einen Zeitraum vom 01.01.1962 - 31.12.2010.
+Basierend auf diesen Daten soll ein Forecasting-Modell entwickelt werden, dass die Werte für den Evaluations-Zeitraum 01.01.2004 - 31.12.2004 und 01.01.2011 - 31.12.2013 vorhersagen soll.
+Die genauen Tage, für die Vorhersagen getroffen werden sollen sind in der Datei "bbdc_2023_AWI_data_evaluate_skeleton.csv" angegeben ("Datum", "Uhrzeit"). Für jeden angegebenen Tag müssen die Werte "SECCI", "Temperatur", "Salinität", "NO2", "NO3", und "NOx" vorhergesagt werden.
+
+Hinweis: Es müssen keine fehlenden Werte oder "NA" vorhergesagt werden. Für jeden Tag in der "bbdc_2023_AWI_data_evaluate_skeleton.csv" müssen valide Werte vorhergesagt werden.
+
+Hinweis: In den Daten wird von "SECCI" gesprochen, gemeint ist "SECCHI".
+
+Für die Abgabe muss die aufgefüllte "bbdc_2023_AWI_data_evaluate_skeleton.csv" Datei im Submission System eingereicht werden. 
+
+Die Evaluationsmetrik ist der Root Mean Squared Error (RMSE). Aufgrund der Variablenskalierung im Rohformat werden die Eingabe- und Referenzdaten Z-Normalisiert und auf diesen der RMSE berechnet.
+
+Viel Erfolg und viel Spaß!
+
+
+-- English --
+
+Welcome to the Bremen Big Data Challenge 2023!
+
+In this year’s task, measurement data from water samples shall be processed. The measurements were carried out by the Alfred-Wegener-Institut near Helgoland (North Sea) and recorded over a period of 54 years (01.01.1962 - 31.12.2015).
+
+The measurement data is structured as a table. For each measurement there is one entry with 8 values given.
+Since this is real world measurement data, some data points may be missing. Those are marked as empty entries or with "NA".
+Also, entries could be noted with an additional "?" to indicate that the recorded value is uncertain. The data is entered in English format (decimal places/decimal separators are indicated by a dot "." and thousands separators by a comma ",").
+
+The development file contains the pure measurement data including missing entries and "?" notes over a period from 01.01.1962 - 31.12.2010.
+Based on this data, a forecasting model shall be developed to predict values for the evaluation periods 01.01.2004 - 31.12.2004 and 01.01.2011 - 31.12.2013.
+The exact days for which predictions are to be made are specified in the file "bbdc_2023_AWI_data_evaluate_skeleton.csv" ("Datum", "Uhrzeit"). For each specified day, the values "SECCI", "Temperatur", "Salinität", "NO2", "NO3", and "NOx" have to be predicted.
+
+Note: Missing values or "NA" do not have to be predicted. Only valid values, indicated by the days given in the "bbdc_2023_AWI_data_evaluate_skeleton.csv" file, must be predicted.
+
+Note: The data says "SECCI", but means "SECCHI".
+
+For submission, the filled "bbdc_2023_AWI_data_evaluate_skeleton.csv" file must be submitted via the Submission System.
+
+The evaluation metric is the Root Mean Squared Error (RMSE). Due to the variable scaling in the raw format, the input and reference data will be Z-normalized and the RMSE will be calculated on them.
+
+Good luck and have fun!
+
+

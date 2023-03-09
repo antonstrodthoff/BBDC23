@@ -1,0 +1,10 @@
+The upload_scoring.py as well as this file show how your submission is evaluated on our servers.
+
+Standard Scaler
+https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html
+
+Cols: ['SECCI', 'Temperatur', 'Salinität', 'NO2', 'NO3', 'NOx']
+Means: [ 3.67538293 10.4809628  32.21740044  0.55346827  9.53884026 10.09414661]
+Variance: [ 3.25649466 24.84346691  1.11161782  0.51352747 76.51075248 79.02745556]
+
+For code on how the Standard Scaler is used, see the upload_scoring.py file.
