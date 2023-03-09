@@ -16,9 +16,9 @@ def writeData(data, dataLength):
 
     for i in range(1,resultLength):
         datestring = results.iloc[i, 0]
-        for j in range((dataLength-364), dataLength):
+        for j in range((dataLength-364), dataLength):    
             if(indexToDate(j).strftime("%d.%m.") == datestring[:-4]):
-                results.iloc[i, 2:8] = data.iloc[j-1, 2:8]
+                results.iloc[i, 2:7] = data.iloc[j-1, 2:7]
                 break
 
     results.to_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student_out.csv", sep=";", index=False)
@@ -54,13 +54,22 @@ startIndex1 = (year1 - 1962 + 1) * 365
 startIndex2 = (year2 - 1962 + 1) * 365
 
 
-for window in range(1, 100, 10):
+for (column, window) in enumerate([130, 50, 180, 130, 115, 100]):
     rollingMeanData = interpolatedData.copy()
-    rollingMeanData.iloc[:, 2:7] = rollingMeanData.iloc[:, 2:7].rolling(window=window, center=True, min_periods=window//2).mean()
+    rollingMeanData.iloc[:, column+2] = rollingMeanData.iloc[:, column+2].rolling(window=window, center=True, min_periods=window//2).mean()
 
-    print(f"The score of the year %i compared to the year %i with a windowsize of %i is:" % (year1, year2, window))
-    print(score_all(interpolatedData.iloc[startIndex1:startIndex1+365, 4], interpolatedData.iloc[startIndex2:startIndex2+365, 4]))
-    print(score_all(rollingMeanData.iloc[startIndex1:startIndex1+365, 4], interpolatedData.iloc[startIndex2:startIndex2+365, 4]))
+    #print(f"The score of the year %i compared to the year %i with a windowsize of %i is:" % (year1, year2, window))
+    #print(score_all(interpolatedData.iloc[startIndex1:startIndex1+365, 2:], interpolatedData.iloc[startIndex2:startIndex2+365, 2:]))
+    #print(score_all(rollingMeanData.iloc[startIndex1:startIndex1+365, 2:], interpolatedData.iloc[startIndex2:startIndex2+365, 2:]))
+ 
+#best window size for Secci:  120, 145, 95, 155, 130, 130, 135, 125 Mittelwert: 130
+#best window size for Temperatur:  65, 20, 80, 30, 160, 40, 30, 35 Mittelwert: 50
+#best window size for Salinität:  130, 105, 300, 175, 300, 150, 300, 95 Mittelwert: 180
+#best window size for NO2:  15, 210, 60, 115, 185, 145, 240, 10 Mittelwert: 130
+#best window size for NO3:  40, 90, 115, 135, 80, 115, 300, 100 Mittelwert: 115
+#best window size for NOx: 100 
 
-#writeData(data, dataLength)
+writeData(data, dataLength)
+
+print(rollingMeanData.tail(50))
 
