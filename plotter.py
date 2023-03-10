@@ -18,10 +18,10 @@ def writeData(data, dataLength):
         datestring = results.iloc[i, 0]
         for j in range((dataLength-364), dataLength):    
             if(indexToDate(j).strftime("%d.%m.") == datestring[:-4]):
-                results.iloc[i, 2:7] = data.iloc[j-1, 2:7]
+                results.iloc[i, 2:8] = data.iloc[j-1, 2:8]
                 break
 
-    results.to_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student_out.csv", sep=";", index=False)
+    results.to_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student_out.csv", sep=";", index=False, lineterminator="\n")
 
 plotColumn = 4
 
@@ -69,7 +69,5 @@ for (column, window) in enumerate([130, 50, 180, 130, 115, 100]):
 #best window size for NO3:  40, 90, 115, 135, 80, 115, 300, 100 Mittelwert: 115
 #best window size for NOx: 100 
 
-writeData(data, dataLength)
-
-print(rollingMeanData.tail(50))
+writeData(rollingMeanData, dataLength)
 
