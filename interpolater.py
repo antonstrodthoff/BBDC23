@@ -5,10 +5,21 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import sklearn.metrics as metrics
+import datetime as dt
 from upload_scoring import score_all
 
 def indexToDate(index):
     return pd.to_datetime(index, unit="D", origin=pd.Timestamp("1962.01.01"))
+
+def writeColumnToResultFile(data, columnNumber, dataLength, dateFormat="%d.%m.%Y"):
+    results = pd.read_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student_out.csv", sep=";")
+    resultLength = results.shape[0]
+
+    for resultRowIndex in range(1, resultLength):
+        datestring = results.iloc[resultRowIndex, 0]
+        results.iloc[resultRowIndex, columnNumber] = data.where(data.iloc[:, 0] == datestring, np.nan, inplace=False).dropna(how="all").iloc[:, columnNumber]
+     
+    results.to_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student_out.csv", sep=";", index=False, lineterminator="\n")
 
 def writeData(data, dataLength):
     results = pd.read_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student.csv", sep=";")
