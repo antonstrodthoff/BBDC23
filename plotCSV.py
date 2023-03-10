@@ -1,11 +1,6 @@
-import sys
-sys.path.insert(0, './task_student/')
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import sklearn.metrics as metrics
-from upload_scoring import score_all
 
 plotColumn = 4
 dropFirstNValues = 0
