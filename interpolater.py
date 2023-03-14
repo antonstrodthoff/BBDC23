@@ -11,30 +11,16 @@ from upload_scoring import score_all
 def indexToDate(index):
     return pd.to_datetime(index, unit="D", origin=pd.Timestamp("1962.01.01"))
 
-def writeColumnToResultFile(data, resultColumnNumber, dataColumnNumber):
+def writeColumnToResultFile(data, resultColumnName, dataColumnNumber):
     results = pd.read_csv("research_data/List_Reede_interpolated.csv", sep=";")
-    #data['date'] = pd.to_datetime(df["date"].dt.strftime('%Y-%m'))
-    resultLength = results.shape[0]
-    dataLength = data.shape[0]
+    results["Datum"] = pd.to_datetime(results["Datum"], format="%d.%m.%Y").dt.strftime("%d.%m.%Y")
+    results.drop(resultColumnName, axis=1, inplace=True)
 
-    for resultRowIndex in range(0, resultLength):
-        if resultRowIndex % 500 == 0:
-            print("Progress: " + str(resultRowIndex) + "/" + str(resultLength) + " rows")
-        datestring = results.iloc[resultRowIndex, 0]
-        for dataRowIndex in range(0, dataLength):
-            if(indexToDate(dataRowIndex).strftime("%d.%m.") == datestring[:-4]):
-                results.iloc[resultRowIndex, resultColumnNumber] = data.iloc[dataRowIndex, dataColumnNumber]
+    data[resultColumnName] = data.iloc[:, dataColumnNumber]
 
-                break
+    merged_result = pd.merge(results, data[["Datum", resultColumnName]], how="outer", left_on="Datum", right_on="Datum")
+    merged_result.to_csv("research_data/List_Reede_interpolated.csv", sep=";", index=False, lineterminator="\n")
 
-    #for resultRowIndex in range(0, resultLength):
-    #    datestring = results.iloc[resultRowIndex, 0]
-    #    print(datestring)
-    #    print(data.where(data.iloc[:, 0] == datestring, np.nan, inplace=False).dropna(how="all"))
-    #    if(data.where(data.iloc[:, 0] == datestring, np.nan, inplace=False).dropna(how="all").iloc[:, columnNumber] != pd.Series([])):
-    #        results.iloc[resultRowIndex, columnNumber] = data.where(data.iloc[:, 0] == datestring, np.nan, inplace=False).dropna(how="all").iloc[:, columnNumber]
-     
-    results.to_csv("research_data/List_Reede_interpolated.csv", sep=";", index=False, lineterminator="\n")
 
 def writeData(data, dataLength):
     results = pd.read_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student.csv", sep=";")
@@ -51,7 +37,8 @@ def writeData(data, dataLength):
 
 
 data = pd.read_csv("research_data/List_Reede.csv", sep=",", na_values=["NA", "NaN", None, np.nan])
-writeColumnToResultFile(data, 3, 3)
+data["Datum"] = pd.to_datetime(data["Date/Time"], format="%Y-%m-%dT%H:%M").dt.strftime("%d.%m.%Y")
+writeColumnToResultFile(data, "Temperatur", 3)
 
 
 # plotColumn = 4
