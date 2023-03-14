@@ -38,7 +38,7 @@ def writeData(data, dataLength):
 
 data = pd.read_csv("research_data/List_Reede.csv", sep=",", na_values=["NA", "NaN", None, np.nan])
 data["Datum"] = pd.to_datetime(data["Date/Time"], format="%Y-%m-%dT%H:%M").dt.strftime("%d.%m.%Y")
-writeColumnToResultFile(data, "Temperatur", 3)
+writeColumnToResultFile(data, "NO3", 11)
 
 
 # plotColumn = 4
