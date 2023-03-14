@@ -11,15 +11,17 @@ from upload_scoring import score_all
 def indexToDate(index):
     return pd.to_datetime(index, unit="D", origin=pd.Timestamp("1962.01.01"))
 
-def writeColumnToResultFile(data, columnNumber, dataLength, dateFormat="%d.%m.%Y"):
-    results = pd.read_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student_out.csv", sep=";")
+def writeColumnToResultFile(data, columnNumber):
+    results = pd.read_csv("research_data/List_Reede_interpolated.csv", sep=";")
     resultLength = results.shape[0]
 
-    for resultRowIndex in range(1, resultLength):
+    for resultRowIndex in range(0, resultLength):
         datestring = results.iloc[resultRowIndex, 0]
-        results.iloc[resultRowIndex, columnNumber] = data.where(data.iloc[:, 0] == datestring, np.nan, inplace=False).dropna(how="all").iloc[:, columnNumber]
+        print(data.where(data.iloc[:, 0] == datestring, np.nan, inplace=False).dropna(how="all").iloc[:, columnNumber])
+        if(data.where(data.iloc[:, 0] == datestring, np.nan, inplace=False).dropna(how="all").iloc[:, columnNumber] != None):
+            results.iloc[resultRowIndex, columnNumber] = data.where(data.iloc[:, 0] == datestring, np.nan, inplace=False).dropna(how="all").iloc[:, columnNumber]
      
-    results.to_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student_out.csv", sep=";", index=False, lineterminator="\n")
+    results.to_csv("research_data/List_Reede_interpolated.csv", sep=";", index=False, lineterminator="\n")
 
 def writeData(data, dataLength):
     results = pd.read_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student.csv", sep=";")
@@ -34,22 +36,27 @@ def writeData(data, dataLength):
 
     results.to_csv("task_student/bbdc_2023_AWI_data_evaluate_skeleton_student_out.csv", sep=";", index=False, lineterminator="\n")
 
-plotColumn = 4
 
-data = pd.read_csv("task_student/bbdc_2023_AWI_data_develop_student.csv", sep=";", na_values=["NA", "NaN", None, np.nan])
-data.fillna(np.nan, inplace=True)
-data = data.drop(0)
-data[["SECCI", "Temperatur", "Salinität", "NO2", "NO3", "NOx"]] = data[["SECCI", "Temperatur", "Salinität", "NO2", "NO3", "NOx"]].astype(float)
+data = pd.read_csv("research_data/List_Reede.csv", sep=",", na_values=["NA", "NaN", None, np.nan])
+writeColumnToResultFile(data.iloc[:,3], 3)
 
-interpolatedData = data.copy()
-interpolatedData = interpolatedData.interpolate(method="linear", limit_direction="both")
+
+# plotColumn = 4
+
+# data = pd.read_csv("task_student/bbdc_2023_AWI_data_develop_student.csv", sep=";", na_values=["NA", "NaN", None, np.nan])
+# data.fillna(np.nan, inplace=True)
+# data = data.drop(0)
+# data[["SECCI", "Temperatur", "Salinität", "NO2", "NO3", "NOx"]] = data[["SECCI", "Temperatur", "Salinität", "NO2", "NO3", "NOx"]].astype(float)
+
+# interpolatedData = data.copy()
+# interpolatedData = interpolatedData.interpolate(method="linear", limit_direction="both")
     
-window = 6000
-rollingMeanData = interpolatedData.copy()
-rollingMeanData.iloc[:, 2:7] = rollingMeanData.iloc[:, 2:7].rolling(window=window, center=True, min_periods=window//2).mean()
+# window = 6000
+# rollingMeanData = interpolatedData.copy()
+# rollingMeanData.iloc[:, 2:7] = rollingMeanData.iloc[:, 2:7].rolling(window=window, center=True, min_periods=window//2).mean()
 
-dataLength = data.shape[0]
-xx = np.arange(0, dataLength, 1)
+# dataLength = data.shape[0]
+# xx = np.arange(0, dataLength, 1)
 
 #plt.plot(xx, data.iloc[:, plotColumn], linewidth=1, alpha=1)
 #plt.plot(xx, interpolatedData.iloc[:, plotColumn], linewidth=1, alpha=0.3)
@@ -59,15 +66,15 @@ xx = np.arange(0, dataLength, 1)
 #plt.show()
 
 #allowed yearToCompare values are 1962 to 2008
-year1 = 1995
-year2 = 1996
-startIndex1 = (year1 - 1962 + 1) * 365
-startIndex2 = (year2 - 1962 + 1) * 365
+# year1 = 1995
+# year2 = 1996
+# startIndex1 = (year1 - 1962 + 1) * 365
+# startIndex2 = (year2 - 1962 + 1) * 365
 
 
-for (column, window) in enumerate([130, 50, 180, 130, 115, 100]):
-    rollingMeanData = interpolatedData.copy()
-    rollingMeanData.iloc[:, column+2] = rollingMeanData.iloc[:, column+2].rolling(window=window, center=True, min_periods=window//2).mean()
+# for (column, window) in enumerate([130, 50, 180, 130, 115, 100]):
+#     rollingMeanData = interpolatedData.copy()
+#     rollingMeanData.iloc[:, column+2] = rollingMeanData.iloc[:, column+2].rolling(window=window, center=True, min_periods=window//2).mean()
 
     #print(f"The score of the year %i compared to the year %i with a windowsize of %i is:" % (year1, year2, window))
     #print(score_all(interpolatedData.iloc[startIndex1:startIndex1+365, 2:], interpolatedData.iloc[startIndex2:startIndex2+365, 2:]))
@@ -80,5 +87,5 @@ for (column, window) in enumerate([130, 50, 180, 130, 115, 100]):
 #best window size for NO3:  40, 90, 115, 135, 80, 115, 300, 100 Mittelwert: 115
 #best window size for NOx: 100 
 
-writeData(rollingMeanData, dataLength)
+#writeData(rollingMeanData, dataLength)
 
