@@ -18,7 +18,7 @@ def writeColumnToResultFile(data, resultColumnName, dataColumnNumber):
 
     data[resultColumnName] = data.iloc[:, dataColumnNumber]
 
-    merged_result = pd.merge(results, data[["Datum", resultColumnName]], how="outer", left_on="Datum", right_on="Datum")
+    merged_result = pd.merge(results, data[["Datum", resultColumnName]], how="outer", left_on="Datum", right_on="Datum").drop_duplicates(subset="Datum", keep="first")
     merged_result.to_csv("research_data/List_Reede_interpolated.csv", sep=";", index=False, lineterminator="\n")
 
 
@@ -38,7 +38,7 @@ def writeData(data, dataLength):
 
 data = pd.read_csv("research_data/List_Reede.csv", sep=",", na_values=["NA", "NaN", None, np.nan])
 data["Datum"] = pd.to_datetime(data["Date/Time"], format="%Y-%m-%dT%H:%M").dt.strftime("%d.%m.%Y")
-writeColumnToResultFile(data, "NO3", 11)
+writeColumnToResultFile(data, "Salinität", 2)
 
 
 # plotColumn = 4
