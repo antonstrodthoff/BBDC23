@@ -11,15 +11,28 @@ from upload_scoring import score_all
 def indexToDate(index):
     return pd.to_datetime(index, unit="D", origin=pd.Timestamp("1962.01.01"))
 
-def writeColumnToResultFile(data, columnNumber):
+def writeColumnToResultFile(data, resultColumnNumber, dataColumnNumber):
     results = pd.read_csv("research_data/List_Reede_interpolated.csv", sep=";")
+    #data['date'] = pd.to_datetime(df["date"].dt.strftime('%Y-%m'))
     resultLength = results.shape[0]
+    dataLength = data.shape[0]
 
     for resultRowIndex in range(0, resultLength):
+        if resultRowIndex % 500 == 0:
+            print("Progress: " + str(resultRowIndex) + "/" + str(resultLength) + " rows")
         datestring = results.iloc[resultRowIndex, 0]
-        print(data.where(data.iloc[:, 0] == datestring, np.nan, inplace=False).dropna(how="all").iloc[:, columnNumber])
-        if(data.where(data.iloc[:, 0] == datestring, np.nan, inplace=False).dropna(how="all").iloc[:, columnNumber] != None):
-            results.iloc[resultRowIndex, columnNumber] = data.where(data.iloc[:, 0] == datestring, np.nan, inplace=False).dropna(how="all").iloc[:, columnNumber]
+        for dataRowIndex in range(0, dataLength):
+            if(indexToDate(dataRowIndex).strftime("%d.%m.") == datestring[:-4]):
+                results.iloc[resultRowIndex, resultColumnNumber] = data.iloc[dataRowIndex, dataColumnNumber]
+
+                break
+
+    #for resultRowIndex in range(0, resultLength):
+    #    datestring = results.iloc[resultRowIndex, 0]
+    #    print(datestring)
+    #    print(data.where(data.iloc[:, 0] == datestring, np.nan, inplace=False).dropna(how="all"))
+    #    if(data.where(data.iloc[:, 0] == datestring, np.nan, inplace=False).dropna(how="all").iloc[:, columnNumber] != pd.Series([])):
+    #        results.iloc[resultRowIndex, columnNumber] = data.where(data.iloc[:, 0] == datestring, np.nan, inplace=False).dropna(how="all").iloc[:, columnNumber]
      
     results.to_csv("research_data/List_Reede_interpolated.csv", sep=";", index=False, lineterminator="\n")
 
@@ -38,7 +51,7 @@ def writeData(data, dataLength):
 
 
 data = pd.read_csv("research_data/List_Reede.csv", sep=",", na_values=["NA", "NaN", None, np.nan])
-writeColumnToResultFile(data.iloc[:,3], 3)
+writeColumnToResultFile(data, 3, 3)
 
 
 # plotColumn = 4
