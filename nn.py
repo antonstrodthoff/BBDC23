@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import tensorflow as tf
+#from tensorflow.keras.models import Sequential
+#from tensorflow.keras.layers import Dense
 
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -65,11 +67,15 @@ regression_model.compile(
     optimizer=tf.optimizers.Adam(learning_rate=0.01),
     loss='mean_squared_error')
 
-history = regression_model.fit(
-    train_features, train_labels,
-    epochs=100,
-    verbose=0,
-    validation_split = 0.2)
+generator = keras.preprocessing.sequence.TimeseriesGenerator(train_features, train_labels, length=16, batch_size=1)
+print(generator[0])
+history = regression_model.fit_generator(generator, steps_per_epoch=len(generator), epochs=20)
+
+#history = regression_model.fit(
+#    train_features, train_labels,
+#    epochs=100,
+#    verbose=0,
+#    validation_split = 0.2)
 
 #generator = keras.preprocessing.sequence.TimeseriesGenerator(train_features, train_labels, length=60, batch_size=64)
 

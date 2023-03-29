@@ -1,10 +1,25 @@
-import pandas as pd
-import datetime
 import numpy as np
+import pandas as pd
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.preprocessing.sequence import TimeseriesGenerator
 
-data = pd.DataFrame({"Datum":pd.date_range(datetime.datetime.strptime("5.1.1984", "%d.%m.%Y"), periods=10954), "Uhrzeit":[np.nan for _ in range(10954)], "SECCI":[np.nan for _ in range(10954)], "Temperatur":[np.nan for _ in range(10954)], "Salinität":[np.nan for _ in range(10954)], "NO2":[np.nan for _ in range(10954)], "NO3":[np.nan for _ in range(10954)], "NOx":[np.nan for _ in range(10954)]})
-data.iloc[:, 0] = data.iloc[:, 0].dt.strftime("%d.%m.%Y")
+xx = np.array([[1,2,3,4,5,6,7,8,9,10], [2,4,6,8,10,12,14,16,18,20]]).T
+yy = np.array([1.5,3,4.5,6,7.5,9,10.5,12,13.5,15])
 
-#print(data)
+data_gen = TimeseriesGenerator(xx, yy, length=2, batch_size=1)
 
-data.to_csv("research_data/List_Reede_interpolated.csv", sep=";", index=False, lineterminator="\n")
+model = Sequential()
+model.add(Dense(32, input_shape=(2,2,), activation='relu'))
+model.add(Dense(1))
+model.compile(optimizer='adam', loss='mse')
+
+history = model.fit_generator(data_gen, epochs=100)
+#history = model.fit(xx, yy, epochs=100)
+
+print(data_gen[0])
+print(history.history)
+
+test = model.predict(np.array([[145, 146], [290, 292]]).T)
+print(test)
+
