@@ -11,7 +11,7 @@ from tensorflow.keras import layers
 from removeOutliers import *
 
 
-column = "NO3"
+column = "Temperatur"
 timeshift = -10
 
 
@@ -41,19 +41,19 @@ all_data = pd.merge(original_data, sylt_data, on="Datum", how="outer")
 all_data.iloc[:, 1:] = all_data.iloc[:, 1:].astype(float).interpolate(method="linear", axis=0)
 
 
-all_data.drop("Datum", axis=1, inplace=True)
-all_data = all_data.iloc[:-1000,:]
+#all_data.drop("Datum", axis=1, inplace=True)
+all_data = all_data.iloc[:-380,:]
 
 
 all_data.dropna(how="any", axis=0, inplace=True)
 
 all_data[column].plot()
-all_data["[NO3]- [µmol/l]"].plot()
+all_data["Temp [°C]"].plot()
 plt.show()
+
+
+all_data.to_csv("./test.csv", sep=",", index=False)
 exit()
-
-all_data.to_csv("./test.csv", sep=",", index=True)
-
 train_data = all_data.sample(frac=0.8, random_state=1)
 test_data = all_data.drop(train_data.index)
 
