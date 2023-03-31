@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 # data.dropna(how="any", axis=0, inplace=True)
 # data = data.reindex(columns=["Datum", column])
 
+
+
 # data2 = pd.read_csv("./task_student/bbdc_2023_AWI_data_develop_student.csv", sep=";", na_values=["NaN", "nan", "NA", np.nan, None])
 # data2.drop(0, axis=0, inplace=True)
 # data2.iloc[:,2:] = data2.iloc[:,2:].astype(float)
@@ -16,8 +18,9 @@ import matplotlib.pyplot as plt
 # data2.dropna(how="any", axis=0, inplace=True)
 # data2 = data2.reindex()
 
-def removeOutliers(data, column="SECCI", window=8, threshold=0.2):
-    #data[column].plot(linewidth=1)
+def removeOutliers(data, column="SECCI", window=8, threshold=0.2, plot=False):
+    if(plot):
+        data[column].plot(linewidth=1)
 
     #remove ouliers
     local_mean = data[column].rolling(window=window, center=True).mean()
@@ -26,14 +29,9 @@ def removeOutliers(data, column="SECCI", window=8, threshold=0.2):
     lower = local_mean - (local_std * threshold)
     data[column] = np.where((data[column] > upper) | (data[column] < lower), local_mean, data[column])
 
-    #data[column].plot(linewidth=1)
-
-    #plt.show()
+    if(plot):
+        data[column].plot(linewidth=1)
+        plt.show()
 
     return data
-
-if __name__ == "__main__":
-    removeOutliers(data=data2, threshold=20)
-        #data.set_index("Datum").plot(linewidth=0.5)
-
 

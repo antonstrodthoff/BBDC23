@@ -1,25 +1,28 @@
-import numpy as np
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.preprocessing.sequence import TimeseriesGenerator
 
-xx = np.array([[1,2,3,4,5,6,7,8,9,10], [2,4,6,8,10,12,14,16,18,20]]).T
-yy = np.array([1.5,3,4.5,6,7.5,9,10.5,12,13.5,15])
+from removeOutliers import *
 
-data_gen = TimeseriesGenerator(xx, yy, length=2, batch_size=1)
+sylt_data = pd.read_csv("./research_data/List_Reede.csv", sep=",", na_values=["NaN", "nan", "NA", np.nan, None])
+sylt_data["Datum"] = pd.to_datetime(pd.to_datetime(sylt_data["Date/Time"], format="%Y-%m-%dT%H:%M").dt.strftime("%d.%m.%Y"))
+sylt_data.drop(axis=1, columns=["Date/Time"], inplace=True)
+sylt_data.fillna(sylt_data.mean(), inplace=True)
+sylt_data.set_index("Datum", inplace=True)
 
-model = Sequential()
-model.add(Dense(32, input_shape=(2,2,), activation='relu'))
-model.add(Dense(1))
-model.compile(optimizer='adam', loss='mse')
+sylt_data = sylt_data[~sylt_data.index.duplicated()]
 
-history = model.fit_generator(data_gen, epochs=100)
-#history = model.fit(xx, yy, epochs=100)
+for i in sylt_data.columns:
+    if(i != "Datum"):
+        sylt_data = removeOutliers(sylt_data, column=i, window=8, threshold=0.5)
 
-print(data_gen[0])
-print(history.history)
+new_index = pd.date_range(start=sylt_data.index.min(), end=sylt_data.index.max(), freq='D')
 
-test = model.predict(np.array([[145, 146], [290, 292]]).T)
-print(test)
+sylt_data = sylt_data.reindex(new_index)
 
+#sylt_data = sylt_data.interpolate(method="linear", axis=0)
+#sylt_data.to_csv("./test2.csv", sep=",", index=True)
+plt.show()

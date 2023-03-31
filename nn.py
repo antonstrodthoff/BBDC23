@@ -11,57 +11,48 @@ from tensorflow.keras import layers
 from removeOutliers import *
 
 
-column = "Temperatur"
+column = "NO3"
+timeshift = -10
+
+
+prediction_dates = pd.read_csv("./task_student/bbdc_2023_AWI_data_evaluate_skeleton_student.csv", sep=";")[["Datum"]]
+prediction_dates.drop(axis=0, index=0, inplace=True)
+prediction_dates["Datum"] = pd.to_datetime(prediction_dates["Datum"], format="%d.%m.%Y")
 
 original_data = pd.read_csv("./task_student/bbdc_2023_AWI_data_develop_student.csv", sep=";", na_values=["NaN", "nan", "NA", np.nan, None])[["Datum", column]]
 original_data.drop(axis=0, index=0, inplace=True)
 original_data["Datum"] = pd.to_datetime(pd.to_datetime(original_data["Datum"], format="%d.%m.%Y").dt.strftime("%d.%m.%Y"))
 original_data[column] = original_data[column].astype(float)
 original_data.dropna(how="any", axis=0, inplace=True)
-#original_data.plot(x="Datum", linewidth=0.5)
-#original_data[column].plot()
-print(original_data.info())
+original_data = removeOutliers(original_data, column=column, window=8, threshold=0.2)
+
+original_data[column] = original_data[column].shift(periods=timeshift, axis=0)
+
 
 sylt_data = pd.read_csv("./research_data/List_Reede.csv", sep=",", na_values=["NaN", "nan", "NA", np.nan, None])
 sylt_data["Datum"] = pd.to_datetime(pd.to_datetime(sylt_data["Date/Time"], format="%Y-%m-%dT%H:%M").dt.strftime("%d.%m.%Y"))
 sylt_data.drop(axis=1, columns=["Date/Time"], inplace=True)
-#sylt_data.fillna(sylt_data.mean(), inplace=True)
-print(sylt_data.info())
-
-#sylt_data.plot(x="Datum", linewidth=0.5)
+sylt_data.fillna(sylt_data.mean(), inplace=True)
+for i in sylt_data.columns:
+    if(i != "Datum"):
+        sylt_data = removeOutliers(sylt_data, column=i, window=8, threshold=0.5)
 
 all_data = pd.merge(original_data, sylt_data, on="Datum", how="outer")
+all_data.iloc[:, 1:] = all_data.iloc[:, 1:].astype(float).interpolate(method="linear", axis=0)
 
-print(all_data.info())
-print(all_data.head(10))
-
-all_data = all_data.sort_values(by="Datum", ascending=True)#.iloc[5145:11870, :]
-all_data.iloc[:, 1:] = all_data.iloc[:, 1:].astype(float)#.interpolate(method="linear", axis=0)
-#all_data.drop("Datum", axis=1, inplace=True)
-
-#all_data=removeOutliers(data=all_data, column="Temperatur", window=8, threshold=0.2)
-
-#all_data["Temperatur"].plot(linewidth=1)
-#original_data[["Datum", "Temperatur"]].plot(x="Datum", linewidth=1)
-#sylt_data[["Datum", "Temp [°C]"]].plot(x="Datum", linewidth=1)
-#all_data[["Datum", column]].plot(x="Datum", linewidth=1)
-
-plt.plot(all_data["Datum"], all_data[column], label="Original")
-plt.show()
-
-#print(original_data.info())
-#print(original_data.head(10))
-
-#print(sylt_data.info())
-#print(sylt_data.head(10))
-
-#print(all_data.info())
-#print(all_data.head(100))
-
-all_data.to_csv("./test.csv", sep=",", index=False)
 
 all_data.drop("Datum", axis=1, inplace=True)
-#plt.show()
+all_data = all_data.iloc[:-1000,:]
+
+
+all_data.dropna(how="any", axis=0, inplace=True)
+
+all_data[column].plot()
+all_data["[NO3]- [µmol/l]"].plot()
+plt.show()
+exit()
+
+all_data.to_csv("./test.csv", sep=",", index=True)
 
 train_data = all_data.sample(frac=0.8, random_state=1)
 test_data = all_data.drop(train_data.index)
@@ -72,63 +63,56 @@ test_features = test_data.copy()
 train_labels = train_features.pop(column)
 test_labels = test_features.pop(column)
 
+
 normalizer = tf.keras.layers.Normalization(axis=-1)
 
 normalizer.adapt(np.array(train_features))
 
 regression_model = tf.keras.Sequential([
     normalizer,
-    # layers.Dense(16, activation='relu'),
-    # layers.Dense(16, activation='relu'),
+    layers.Dense(128, activation='relu'),
+    layers.Dense(128, activation='relu'),
     layers.Dense(1)
 ])
 
 regression_model.compile(
-    optimizer=tf.optimizers.Adam(learning_rate=0.01),
+    optimizer=tf.optimizers.Adam(learning_rate=0.0001),
     loss='mean_squared_error')
 
-# generator = keras.preprocessing.sequence.TimeseriesGenerator(train_features, train_labels, length=16, batch_size=1)
-# print(generator[0])
-# history = regression_model.fit_generator(generator, steps_per_epoch=len(generator), epochs=20)
-
-#history = regression_model.fit(
-#    train_features, train_labels,
-#    epochs=100,
-#    verbose=0,
-#    validation_split = 0.2)
-
-#generator = keras.preprocessing.sequence.TimeseriesGenerator(train_features, train_labels, length=60, batch_size=64)
-
-#history = regression_model.fit_generator(generator, steps_per_epoch=len(generator), epochs=20)
-
-# hist = pd.DataFrame(history.history)
-# hist['epoch'] = history.epoch
-# print(hist.tail())
+history = regression_model.fit(
+   train_features, train_labels,
+   epochs=600,
+   verbose=1,
+   validation_split = 0.2)
 
 def plot_loss(history):
   plt.plot(history.history['loss'], label='loss')
   plt.plot(history.history['val_loss'], label='val_loss')
-  plt.ylim([0, 20])
+  plt.ylim([0, 5])
   plt.xlabel('Epoch')
   plt.ylabel('Error [{}]'.format(column))
   plt.legend()
   plt.grid(True)
 
-#test_predictions = regression_model.predict(test_features).flatten()
+test_predictions = regression_model.predict(test_features).flatten()
 
-# a = plt.axes(aspect='equal')
-# plt.scatter(test_labels, test_predictions)
-# plt.xlabel('True Values [{}]'.format(column))
-# plt.ylabel('Predictions [{}]'.format(column))
-# lims = [0, 15]
-# plt.xlim(lims)
-# plt.ylim(lims)
-# _ = plt.plot(lims, lims)
 
-#plot test_predictions vs number of test data
-#plt.plot(test_predictions, label="Predictions")
+
+def plot_predicions_over_label(test_labels, test_predictions):
+    a = plt.axes(aspect='equal')
+    plt.scatter(test_labels, test_predictions)
+    plt.xlabel('True Values [{}]'.format(column))
+    plt.ylabel('Predictions [{}]'.format(column))
+    # lims = [0, 100]
+    # plt.xlim(lims)
+    # plt.ylim(lims)
+    # _ = plt.plot(lims, lims)
+
+plot_predicions_over_label(test_labels, test_predictions)
 
 #plot_loss(history)
 
-#plt.show()
+
+
+plt.show()
 
