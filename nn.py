@@ -8,6 +8,7 @@ import tensorflow as tf
 
 from tensorflow import keras
 from tensorflow.keras import layers
+from removeOutliers import *
 
 
 column = "Temperatur"
@@ -28,6 +29,14 @@ all_data = pd.merge(original_data, sylt_data, on="Datum", how="outer")
 all_data = all_data.sort_values(by="Datum").iloc[5145:11870, :]
 all_data.iloc[:, 1:] = all_data.iloc[:, 1:].astype(float).interpolate(method="linear", axis=0)
 all_data.drop("Datum", axis=1, inplace=True)
+
+
+all_data=removeOutliers(data=all_data, column="Temperatur", window=8, threshold=0.2)
+
+# all_data["Temperatur"].plot(linewidth=1)
+# plt.show()
+
+
 
 #print(original_data.info())
 #print(original_data.head(10))
@@ -67,9 +76,9 @@ regression_model.compile(
     optimizer=tf.optimizers.Adam(learning_rate=0.01),
     loss='mean_squared_error')
 
-generator = keras.preprocessing.sequence.TimeseriesGenerator(train_features, train_labels, length=16, batch_size=1)
-print(generator[0])
-history = regression_model.fit_generator(generator, steps_per_epoch=len(generator), epochs=20)
+# generator = keras.preprocessing.sequence.TimeseriesGenerator(train_features, train_labels, length=16, batch_size=1)
+# print(generator[0])
+# history = regression_model.fit_generator(generator, steps_per_epoch=len(generator), epochs=20)
 
 #history = regression_model.fit(
 #    train_features, train_labels,
@@ -81,9 +90,9 @@ history = regression_model.fit_generator(generator, steps_per_epoch=len(generato
 
 #history = regression_model.fit_generator(generator, steps_per_epoch=len(generator), epochs=20)
 
-hist = pd.DataFrame(history.history)
-hist['epoch'] = history.epoch
-print(hist.tail())
+# hist = pd.DataFrame(history.history)
+# hist['epoch'] = history.epoch
+# print(hist.tail())
 
 def plot_loss(history):
   plt.plot(history.history['loss'], label='loss')
@@ -94,7 +103,7 @@ def plot_loss(history):
   plt.legend()
   plt.grid(True)
 
-test_predictions = regression_model.predict(test_features).flatten()
+#test_predictions = regression_model.predict(test_features).flatten()
 
 # a = plt.axes(aspect='equal')
 # plt.scatter(test_labels, test_predictions)
@@ -106,10 +115,10 @@ test_predictions = regression_model.predict(test_features).flatten()
 # _ = plt.plot(lims, lims)
 
 #plot test_predictions vs number of test data
-plt.plot(test_predictions, label="Predictions")
+#plt.plot(test_predictions, label="Predictions")
 
 #plot_loss(history)
 
-plt.show()
+#plt.show()
 
 
