@@ -9,7 +9,26 @@ import matplotlib.pyplot as plt
 # data.dropna(how="any", axis=0, inplace=True)
 # data = data.reindex(columns=["Datum", column])
 
+<<<<<<< Updated upstream
 
+=======
+column2 = "SECCI"
+data2 = pd.read_csv("./task_student/bbdc_2023_AWI_data_develop_student.csv", sep=";", na_values=["NaN", "nan", "NA", np.nan, None])[["Datum", column2]]
+data2.drop(0, axis=0, inplace=True)
+data2[column2] = data2[column2].astype(float)
+data2["Datum"] = pd.to_datetime(pd.to_datetime(data2["Datum"], format="%d.%m.%Y").dt.strftime("%d.%m.%Y"))
+data2.dropna(how="any", axis=0, inplace=True)
+data2 = data2.reindex(columns=["Datum", column2])
+data2[column2].plot(linewidth=1)
+
+#remove ouliers
+window = 100
+threshold = 2
+local_mean = data2[column2].rolling(window=window, center=True).mean()
+local_std = data2[column2].rolling(window=window, center=True).std()
+upper = local_mean + (local_std * threshold)
+lower = local_mean - (local_std * threshold)
+>>>>>>> Stashed changes
 
 # data2 = pd.read_csv("./task_student/bbdc_2023_AWI_data_develop_student.csv", sep=";", na_values=["NaN", "nan", "NA", np.nan, None])
 # data2.drop(0, axis=0, inplace=True)
