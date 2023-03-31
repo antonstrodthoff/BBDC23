@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import datetime as dt
 
 import tensorflow as tf
 #from tensorflow.keras.models import Sequential
@@ -12,12 +13,13 @@ from removeOutliers import *
 
 
 column = "Temperatur"
-timeshift = -10
+timeshift = 0
 
 
-prediction_dates = pd.read_csv("./task_student/bbdc_2023_AWI_data_evaluate_skeleton_student.csv", sep=";")[["Datum"]]
-prediction_dates.drop(axis=0, index=0, inplace=True)
-prediction_dates["Datum"] = pd.to_datetime(prediction_dates["Datum"], format="%d.%m.%Y")
+
+prediction_data = pd.read_csv("test3.csv", sep=",", na_values=["NaN", "nan", "NA", np.nan, None])
+prediction_data.drop(axis=1, columns=["Datum"], inplace=True)
+print(prediction_data.info())
 
 original_data = pd.read_csv("./task_student/bbdc_2023_AWI_data_develop_student.csv", sep=";", na_values=["NaN", "nan", "NA", np.nan, None])[["Datum", column]]
 original_data.drop(axis=0, index=0, inplace=True)
@@ -47,13 +49,14 @@ all_data = all_data.iloc[:-380,:]
 
 all_data.dropna(how="any", axis=0, inplace=True)
 
-all_data[column].plot()
-all_data["Temp [°C]"].plot()
-plt.show()
+# all_data[column].plot()
+# all_data["Temp [°C]"].plot()
+# plt.show()
 
 
 all_data.to_csv("./test.csv", sep=",", index=False)
-exit()
+
+
 train_data = all_data.sample(frac=0.8, random_state=1)
 test_data = all_data.drop(train_data.index)
 
@@ -95,8 +98,6 @@ def plot_loss(history):
   plt.grid(True)
 
 test_predictions = regression_model.predict(test_features).flatten()
-
-
 
 def plot_predicions_over_label(test_labels, test_predictions):
     a = plt.axes(aspect='equal')

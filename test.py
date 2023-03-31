@@ -13,6 +13,10 @@ sylt_data["Datum"] = pd.to_datetime(pd.to_datetime(sylt_data["Date/Time"], forma
 sylt_data.drop(axis=1, columns=["Date/Time"], inplace=True)
 sylt_data.fillna(sylt_data.mean(), inplace=True)
 
+prediction_dates = pd.read_csv("./task_student/bbdc_2023_AWI_data_evaluate_skeleton_student.csv", sep=";")[["Datum"]]
+prediction_dates.drop(axis=0, index=0, inplace=True)
+prediction_dates["Datum"] = pd.to_datetime(prediction_dates["Datum"], format="%d.%m.%Y")
+
 
 for i in sylt_data.columns:
     if(i != "Datum"):
@@ -38,3 +42,6 @@ plt.show()
 
 sylt_data["Datum"] = daten
 sylt_data.to_csv("./test2.csv", sep=",", index=False)
+
+prediction_dates = pd.merge(prediction_dates, sylt_data, on="Datum", how="left")
+prediction_dates.to_csv("./test3.csv", sep=",", index=False)
