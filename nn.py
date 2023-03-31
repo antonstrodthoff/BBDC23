@@ -16,27 +16,38 @@ column = "Temperatur"
 original_data = pd.read_csv("./task_student/bbdc_2023_AWI_data_develop_student.csv", sep=";", na_values=["NaN", "nan", "NA", np.nan, None])[["Datum", column]]
 original_data.drop(axis=0, index=0, inplace=True)
 original_data["Datum"] = pd.to_datetime(pd.to_datetime(original_data["Datum"], format="%d.%m.%Y").dt.strftime("%d.%m.%Y"))
+original_data[column] = original_data[column].astype(float)
 original_data.dropna(how="any", axis=0, inplace=True)
+#original_data.plot(x="Datum", linewidth=0.5)
+#original_data[column].plot()
+print(original_data.info())
 
 sylt_data = pd.read_csv("./research_data/List_Reede.csv", sep=",", na_values=["NaN", "nan", "NA", np.nan, None])
 sylt_data["Datum"] = pd.to_datetime(pd.to_datetime(sylt_data["Date/Time"], format="%Y-%m-%dT%H:%M").dt.strftime("%d.%m.%Y"))
 sylt_data.drop(axis=1, columns=["Date/Time"], inplace=True)
-sylt_data.fillna(sylt_data.mean(), inplace=True)
+#sylt_data.fillna(sylt_data.mean(), inplace=True)
+print(sylt_data.info())
 
-#sylt_data.plot(x="Datum")
+#sylt_data.plot(x="Datum", linewidth=0.5)
 
 all_data = pd.merge(original_data, sylt_data, on="Datum", how="outer")
-all_data = all_data.sort_values(by="Datum").iloc[5145:11870, :]
-all_data.iloc[:, 1:] = all_data.iloc[:, 1:].astype(float).interpolate(method="linear", axis=0)
-all_data.drop("Datum", axis=1, inplace=True)
 
+print(all_data.info())
+print(all_data.head(10))
 
-all_data=removeOutliers(data=all_data, column="Temperatur", window=8, threshold=0.2)
+all_data = all_data.sort_values(by="Datum", ascending=True)#.iloc[5145:11870, :]
+all_data.iloc[:, 1:] = all_data.iloc[:, 1:].astype(float)#.interpolate(method="linear", axis=0)
+#all_data.drop("Datum", axis=1, inplace=True)
 
-# all_data["Temperatur"].plot(linewidth=1)
-# plt.show()
+#all_data=removeOutliers(data=all_data, column="Temperatur", window=8, threshold=0.2)
 
+#all_data["Temperatur"].plot(linewidth=1)
+#original_data[["Datum", "Temperatur"]].plot(x="Datum", linewidth=1)
+#sylt_data[["Datum", "Temp [°C]"]].plot(x="Datum", linewidth=1)
+#all_data[["Datum", column]].plot(x="Datum", linewidth=1)
 
+plt.plot(all_data["Datum"], all_data[column], label="Original")
+plt.show()
 
 #print(original_data.info())
 #print(original_data.head(10))
@@ -49,6 +60,7 @@ all_data=removeOutliers(data=all_data, column="Temperatur", window=8, threshold=
 
 all_data.to_csv("./test.csv", sep=",", index=False)
 
+all_data.drop("Datum", axis=1, inplace=True)
 #plt.show()
 
 train_data = all_data.sample(frac=0.8, random_state=1)
@@ -59,7 +71,6 @@ test_features = test_data.copy()
 
 train_labels = train_features.pop(column)
 test_labels = test_features.pop(column)
-
 
 normalizer = tf.keras.layers.Normalization(axis=-1)
 
@@ -120,5 +131,4 @@ def plot_loss(history):
 #plot_loss(history)
 
 #plt.show()
-
 
